@@ -5,20 +5,35 @@ if (!process.env.PORT) {
 
 const express = require('express');
 const path = require('path');
-const favicon = require('serve-favicon');
-const logger = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const methodOverride = require('method-override')
+const favicon = require('serve-favicon'); // Middleware to serve favicon.ico
+const logger = require('morgan'); // HTTP request logger middleware for node.js
+const cookieParser = require('cookie-parser'); // Parse Cookie header and populate req.cookies
+const bodyParser = require('body-parser'); // Node.js body parsing middleware - parses incoming request bodies
+const methodOverride = require('method-override') // Override HTTP methods using query value
 
 const app = express();
 
 const mongoose = require('mongoose');
+
+// MongoDB connection with error handling
 mongoose.connect('mongodb://localhost/local', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
   useFindAndModify: false
+});
+
+// Connection event listeners
+mongoose.connection.on('connected', () => {
+  console.log('✅ MongoDB connected successfully to localhost/local');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ MongoDB disconnected');
 });
 
 // view engine setup
@@ -27,14 +42,18 @@ app.set('view engine', 'pug');
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// override with POST having ?_method=DELETE or ?_method=PUT
+// Override HTTP methods - allows PUT/DELETE via form submissions using ?_method=DELETE or ?_method=PUT
 app.use(methodOverride('_method'))
 
-// uncomment after placing your favicon in /public
+// Serve favicon.ico from /public directory (currently commented out)
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// Log HTTP requests in development format (includes method, url, status, response time)
 app.use(logger('dev'));
+// Parse URL-encoded bodies (from HTML forms) with extended set to false for simple key-value pairs
 app.use(bodyParser.urlencoded({ extended: false }));
+// Parse JSON bodies from incoming requests
 app.use(bodyParser.json());
+// Parse cookies attached to the client request object
 app.use(cookieParser());
 
 
