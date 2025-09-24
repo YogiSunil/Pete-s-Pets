@@ -10,11 +10,34 @@ mongoosePaginate.paginate.options = {
 };
 
 const PetSchema = new Schema({
-    name            : { type: String, required: true }
-  , species         : { type: String }
+    name            : { 
+      type: String, 
+      required: [true, 'Name is required'],
+      minlength: [2, 'Name must be at least 2 characters long']
+    }
+  , species         : { 
+      type: String,
+      required: [true, 'Species is required']
+    }
   , birthday        : { type: Date }
-  , picUrl          : { type: String }
-  , picUrlSq        : { type: String }
+  , picUrl          : { 
+      type: String,
+      validate: {
+        validator: function(v) {
+          return !v || /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(v);
+        },
+        message: 'Picture URL must be a valid image URL (jpg, jpeg, png, gif, webp)'
+      }
+    }
+  , picUrlSq        : { 
+      type: String,
+      validate: {
+        validator: function(v) {
+          return !v || /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(v);
+        },
+        message: 'Square picture URL must be a valid image URL (jpg, jpeg, png, gif, webp)'
+      }
+    }
   , favoriteFood    : { type: String }
   , description     : { type: String }
 },
