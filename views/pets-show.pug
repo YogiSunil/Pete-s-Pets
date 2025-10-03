@@ -1,65 +1,89 @@
 extends layout
 
 block content
-  .row
-    .col-sm-4
-      if pet.avatarUrl && pet.avatarUrl !== 'test-url'
-        img(src=pet.avatarUrl + '-square.').img-fluid
-      else if pet.picUrlSq
-        img(src=pet.picUrlSq).img-fluid
+  .container.fade-in
+    // Purchase Success Messages
+    if purchased == 'true'
+      if email == 'sent'
+        .alert.alert-success.text-center.bounce
+          i.fas.fa-check-circle(style="font-size: 2rem; margin-right: 10px;")
+          strong Purchase Successful! 
+          p.mb-0 Congratulations! A confirmation email has been sent to you.
+      else if email == 'error'
+        .alert.alert-warning.text-center
+          i.fas.fa-exclamation-triangle(style="font-size: 1.5rem; margin-right: 10px;")
+          strong Purchase Successful! 
+          p.mb-0 Your purchase was completed, but we couldn't send the confirmation email.
       else
-        .alert.alert-info No image available
-    .col-sm-8
-      h1=pet.name
-      p=pet.species
-      p Born on #{pet.birthday}
-      p=pet.description
+        .alert.alert-success.text-center
+          i.fas.fa-heart(style="font-size: 1.5rem; margin-right: 10px;")
+          strong Purchase Successful! 
+          p.mb-0 Thank you for choosing Pete's Pet Emporium!
+    else if error == 'payment_failed'
+      .alert.alert-danger.text-center
+        i.fas.fa-times-circle(style="font-size: 1.5rem; margin-right: 10px;")
+        strong Payment Failed
+        p.mb-0 There was an issue processing your payment. Please try again.
+    
+    .row
+      .col-md-5
+        .card.bounce
+          if pet.avatarUrl && pet.avatarUrl !== 'test-url'
+            img(src=pet.avatarUrl + '-square.').card-img-top.pet-image
+          else if pet.picUrlSq
+            img(src=pet.picUrlSq).card-img-top.pet-image
+          else
+            .alert.alert-info 
+              i.fas.fa-paw(style="font-size: 2rem; margin-bottom: 1rem;")
+              br
+              | No image available
       
-      // Price display
-      if pet.price
-        .alert.alert-success
-          h4 Price: $#{pet.price}
-      
-      // Stripe payment form
-      if pet.price
-        .card-section
-          h5 Purchase #{pet.name}
-          form#payment-form(action="/pets/" + pet.id + "/purchase" method="POST")
-            .form-group
-              label(for="card-element") Credit or debit card
-              #card-element.form-control
-                // Stripe Elements will create form elements here
-              #card-errors(role="alert")
+      .col-md-7
+        .card
+          .card-body
+            h1.card-title.text-center=pet.name
+            .row.text-center
+              .col-md-6
+                h5.text-muted Species
+                p.lead=pet.species
+              .col-md-6
+                h5.text-muted Birthday
+                p.lead Born on #{pet.birthday}
             
-            button#submit-button.btn.btn-primary(type="submit") Pay $#{pet.price}
-        
-        script(src="https://js.stripe.com/v3/")
-        script.
-          const stripe = Stripe('pk_test_51SEBygFEEQN3Fm7oaFwiNLF3JWrJsjMOhLEqo7fSH7BfUx4Dz8Zw3gIIlkCrpTkvJ4C9XlcB0wgnb80Qxs4MGg6b004oA1yx8E');
-          const elements = stripe.elements();
-          
-          const cardElement = elements.create('card');
-          cardElement.mount('#card-element');
-          
-          const form = document.getElementById('payment-form');
-          form.addEventListener('submit', async (event) => {
-            event.preventDefault();
+            hr
             
-            const {token, error} = await stripe.createToken(cardElement);
+            h5.text-muted About #{pet.name}
+            p.card-text=pet.description
             
-            if (error) {
-              document.getElementById('card-errors').textContent = error.message;
-            } else {
-              // Add token to form and submit
-              const hiddenInput = document.createElement('input');
-              hiddenInput.setAttribute('type', 'hidden');
-              hiddenInput.setAttribute('name', 'stripeToken');
-              hiddenInput.setAttribute('value', token.id);
-              form.appendChild(hiddenInput);
-              form.submit();
-            }
-          });
-      
-      .text-right
-        a(href="/pets/" + pet.id + "/edit").btn-link Edit
+            // Price display with enhanced styling
+            if pet.price
+              .payment-section
+                .alert.alert-success
+                  i.fas.fa-dollar-sign(style="font-size: 1.5rem; margin-right: 10px;")
+                  | Price: $#{pet.price}
+                
+                // Stripe checkout form
+                .stripe-checkout-container
+                  form(action="/pets/" + pet.id + "/purchase" method="POST")
+                    script.stripe-button(
+                      src="https://checkout.stripe.com/checkout.js"
+                      data-key="pk_test_51SEBygFEEQN3Fm7oaFwiNLF3JWrJsjMOhLEqo7fSH7BfUx4Dz8Zw3gIIlkCrpTkvJ4C9XlcB0wgnb80Qxs4MGg6b004oA1yx8E"
+                      data-amount=pet.price * 100
+                      data-name="Pete's Pets"
+                      data-description=pet.name
+                      data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                      data-locale="auto"
+                      data-zip-code="true"
+                    )
+                  p.text-muted.small 
+                    i.fas.fa-lock(style="margin-right: 5px;")
+                    | Secure payment powered by Stripe
+            
+            .text-center.mt-4
+              a(href="/pets/" + pet.id + "/edit").btn.btn-primary.me-3
+                i.fas.fa-edit(style="margin-right: 5px;")
+                | Edit Pet
+              a(href="/").btn.btn-outline-secondary
+                i.fas.fa-arrow-left(style="margin-right: 5px;")
+                | Back to Pets
       

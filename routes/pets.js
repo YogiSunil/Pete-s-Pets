@@ -1,6 +1,9 @@
 // MODELS
 const Pet = require('../models/pet');
 
+// EMAIL FUNCTIONALITY
+const mailer = require('../utils/mailer');
+
 // STRIPE PAYMENT CONFIGURATION
 const stripe = require('stripe')(process.env.PRIVATE_STRIPE_API_KEY);
 
@@ -154,7 +157,10 @@ module.exports = (app) => {
     Pet.findById(req.params.id).exec((err, pet) => {
       res.render('pets-show', { 
         pet: pet,
-        stripePublicKey: process.env.PUBLIC_STRIPE_API_KEY 
+        stripePublicKey: process.env.PUBLIC_STRIPE_API_KEY,
+        purchased: req.query.purchased,
+        email: req.query.email,
+        error: req.query.error
       });
     });
   });
@@ -206,25 +212,44 @@ module.exports = (app) => {
     console.log('=== PURCHASE REQUEST ===');
     console.log('req.body:', req.body);
     
-    Pet.findById(req.params.id).exec((err, pet) => {
+    // req.body.petId can become null through seeding,
+    // this way we'll ensure we use a non-null value
+    let petId = req.body.petId || req.params.id;
+    
+    Pet.findById(petId).exec((err, pet) => {
       if (err) {
         console.log('Error finding pet:', err);
         return res.status(400).send({ err: err });
       }
       
       // Process the payment with Stripe
-      stripe.charges.create({
+      const charge = stripe.charges.create({
         amount: pet.price * 100, // Stripe requires amount in cents
         currency: "usd",
         source: req.body.stripeToken,
-        description: `Purchase of ${pet.name}`,
+        description: `Purchased ${pet.name}, ${pet.species}`,
         receipt_email: req.body.stripeEmail
-      }).then((charge) => {
-        console.log('Stripe charge successful:', charge.id);
-        // Redirect to success page or pet page
-        return res.redirect(`/pets/${req.params.id}?purchased=true`);
-      }).catch((err) => {
-        console.log('Stripe charge error:', err);
+      }).then((chg) => {
+        console.log('✅ Stripe charge successful:', chg.id);
+        
+        // Convert the amount back to dollars for ease in displaying in the template
+        const user = {
+          email: req.body.stripeEmail,
+          amount: chg.amount / 100,
+          petName: pet.name,
+          purchaseDate: new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+        };
+        
+        // Call our mail handler to manage sending emails
+        mailer.sendMail(user, req, res);
+        
+      }).catch(err => {
+        console.log('❌ Stripe charge error:', err);
         return res.redirect(`/pets/${req.params.id}?error=payment_failed`);
       });
     });

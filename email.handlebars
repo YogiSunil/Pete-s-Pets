@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Pet Purchase Confirmation</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .pet-info {
+            background: #f8f9fa;
+            border-left: 5px solid #ff6b35;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .amount {
+            font-size: 24px;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .paw-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="paw-icon">🐾</div>
+            <h1>Congratulations!</h1>
+            <p>Your new furry friend is coming home!</p>
+        </div>
+        
+        <div class="content">
+            <h2>Welcome {{petName}} to Your Family! 🎉</h2>
+            
+            <div class="pet-info">
+                <h3>🐕 Pet Details:</h3>
+                <p><strong>Name:</strong> {{petName}}</p>
+                <p><strong>Amount Paid:</strong> <span class="amount">${{amount}}</span></p>
+                <p><strong>Purchase Date:</strong> {{purchaseDate}}</p>
+            </div>
+            
+            <h3>What's Next? 📋</h3>
+            <ul>
+                <li>🏠 Prepare your home for {{petName}}</li>
+                <li>🛍️ Get essential supplies (food, toys, bed)</li>
+                <li>👩‍⚕️ Schedule a vet checkup</li>
+                <li>❤️ Show lots of love and patience</li>
+            </ul>
+            
+            <p>We're so excited for you and {{petName}}! If you have any questions, don't hesitate to contact us.</p>
+            
+            <p><strong>Thank you for choosing Pete's Pet Emporium!</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>🐾 Pete's Pet Emporium - Connecting Hearts with Paws</p>
+            <p>© 2025 Pete's Pet Emporium. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

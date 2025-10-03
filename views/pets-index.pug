@@ -1,22 +1,41 @@
 extends layout
 
 block content
-  .row
-    each pet, index in pets
-      .col-sm-4.justify-content-center
-        .card
+  .container.fade-in
+    .row.mb-4
+      .col-12.text-center
+        h1.display-4
+          i.fas.fa-paw(style="margin-right: 15px; color: var(--primary-color);")
+          | Find Your Perfect Companion
+        p.lead.text-muted Discover amazing pets looking for their forever homes
+    
+    .pet-grid
+      each pet, index in pets
+        .card.bounce(style=`animation-delay: ${index * 0.1}s`)
           if pet.avatarUrl && pet.avatarUrl !== 'test-url'
-            img.card-img-top(src=pet.avatarUrl + '-standard.', alt='Card image cap')
+            img.card-img-top(src=pet.avatarUrl + '-standard.', alt=`Photo of ${pet.name}`)
           else if pet.picUrl
-            img.card-img-top(src=pet.picUrl, alt='Card image cap')
+            img.card-img-top(src=pet.picUrl, alt=`Photo of ${pet.name}`)
           else
-            .card-img-top.alert.alert-info.text-center No image
-          .card-body
-            h4.card-title= pet.name
-            small.text-muted= pet.species
-            p.card-text= pet.description
-            .text-right
-                a.card-link(href=`/pets/${pet._id}`) View #{pet.name}
+            .card-img-top.alert.alert-info.text-center.d-flex.flex-column.justify-content-center(style="height: 250px; margin: 0;")
+              i.fas.fa-paw(style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;")
+              | No image available
+          
+          .card-body.text-center
+            h5.card-title
+              i.fas.fa-heart(style="margin-right: 8px; color: var(--danger-color);")
+              = pet.name
+            .badge.bg-primary.mb-2= pet.species
+            p.card-text.text-muted= pet.description
+            
+            if pet.price
+              .alert.alert-success.small.py-2.mb-3
+                i.fas.fa-dollar-sign(style="margin-right: 5px;")
+                strong $#{pet.price}
+            
+            a.btn.btn-primary(href=`/pets/${pet._id}`)
+              i.fas.fa-eye(style="margin-right: 5px;")
+              | View #{pet.name}
 
   nav(aria-label='Page navigation example').d-flex.justify-content-center
     ul.pagination
