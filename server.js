@@ -78,4 +78,11 @@ app.use((err, req, res, next) => {
   res.render('error');
 });
 
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log('Press Ctrl+C to stop the server');
+});
+
 module.exports = app;

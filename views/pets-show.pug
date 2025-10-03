@@ -14,6 +14,52 @@ block content
       p=pet.species
       p Born on #{pet.birthday}
       p=pet.description
+      
+      // Price display
+      if pet.price
+        .alert.alert-success
+          h4 Price: $#{pet.price}
+      
+      // Stripe payment form
+      if pet.price
+        .card-section
+          h5 Purchase #{pet.name}
+          form#payment-form(action="/pets/" + pet.id + "/purchase" method="POST")
+            .form-group
+              label(for="card-element") Credit or debit card
+              #card-element.form-control
+                // Stripe Elements will create form elements here
+              #card-errors(role="alert")
+            
+            button#submit-button.btn.btn-primary(type="submit") Pay $#{pet.price}
+        
+        script(src="https://js.stripe.com/v3/")
+        script.
+          const stripe = Stripe('pk_test_51SEBygFEEQN3Fm7oaFwiNLF3JWrJsjMOhLEqo7fSH7BfUx4Dz8Zw3gIIlkCrpTkvJ4C9XlcB0wgnb80Qxs4MGg6b004oA1yx8E');
+          const elements = stripe.elements();
+          
+          const cardElement = elements.create('card');
+          cardElement.mount('#card-element');
+          
+          const form = document.getElementById('payment-form');
+          form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const {token, error} = await stripe.createToken(cardElement);
+            
+            if (error) {
+              document.getElementById('card-errors').textContent = error.message;
+            } else {
+              // Add token to form and submit
+              const hiddenInput = document.createElement('input');
+              hiddenInput.setAttribute('type', 'hidden');
+              hiddenInput.setAttribute('name', 'stripeToken');
+              hiddenInput.setAttribute('value', token.id);
+              form.appendChild(hiddenInput);
+              form.submit();
+            }
+          });
+      
       .text-right
         a(href="/pets/" + pet.id + "/edit").btn-link Edit
       

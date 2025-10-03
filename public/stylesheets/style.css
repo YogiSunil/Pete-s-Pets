@@ -11,3 +11,25 @@
 .card {
     margin-bottom:20px;
 }
+
+/* Stripe Elements Styling */
+.card-section {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#card-element {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+}
+
+#card-errors {
+    color: #fa755a;
+    margin-top: 10px;
+    font-size: 14px;
+}

@@ -41,6 +41,17 @@ const PetSchema = new Schema({
   , avatarUrl       : { type: String }
   , favoriteFood    : { type: String }
   , description     : { type: String }
+  , price           : { 
+      type: Number, 
+      required: [true, 'Price is required'],
+      min: [0, 'Price must be a positive number'],
+      validate: {
+        validator: function(v) {
+          return v >= 0 && v <= 999999;
+        },
+        message: 'Price must be between 0 and 999,999'
+      }
+    }
 },
 {
   timestamps: true

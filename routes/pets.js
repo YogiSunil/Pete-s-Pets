@@ -1,6 +1,9 @@
 // MODELS
 const Pet = require('../models/pet');
 
+// STRIPE PAYMENT CONFIGURATION
+const stripe = require('stripe')(process.env.PRIVATE_STRIPE_API_KEY);
+
 // UPLOADING TO AWS S3
 const multer  = require('multer');
 const upload = multer({ dest: 'uploads/' });
@@ -149,7 +152,10 @@ module.exports = (app) => {
   // SHOW PET
   app.get('/pets/:id', (req, res) => {
     Pet.findById(req.params.id).exec((err, pet) => {
-      res.render('pets-show', { pet: pet });
+      res.render('pets-show', { 
+        pet: pet,
+        stripePublicKey: process.env.PUBLIC_STRIPE_API_KEY 
+      });
     });
   });
 
@@ -193,5 +199,34 @@ module.exports = (app) => {
       { page: page }).then((results) => {
         res.render('pets-index', { pets: results.docs, pagesCount: results.pages, currentPage: page, term: req.query.term });
       });
+  });
+
+  // PURCHASE PET
+  app.post('/pets/:id/purchase', (req, res) => {
+    console.log('=== PURCHASE REQUEST ===');
+    console.log('req.body:', req.body);
+    
+    Pet.findById(req.params.id).exec((err, pet) => {
+      if (err) {
+        console.log('Error finding pet:', err);
+        return res.status(400).send({ err: err });
+      }
+      
+      // Process the payment with Stripe
+      stripe.charges.create({
+        amount: pet.price * 100, // Stripe requires amount in cents
+        currency: "usd",
+        source: req.body.stripeToken,
+        description: `Purchase of ${pet.name}`,
+        receipt_email: req.body.stripeEmail
+      }).then((charge) => {
+        console.log('Stripe charge successful:', charge.id);
+        // Redirect to success page or pet page
+        return res.redirect(`/pets/${req.params.id}?purchased=true`);
+      }).catch((err) => {
+        console.log('Stripe charge error:', err);
+        return res.redirect(`/pets/${req.params.id}?error=payment_failed`);
+      });
+    });
   });
 }
