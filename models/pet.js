@@ -59,4 +59,20 @@ const PetSchema = new Schema({
 
 PetSchema.plugin(mongoosePaginate);
 
+// Full-text search index with weights
+PetSchema.index({ 
+  name: 'text', 
+  species: 'text', 
+  favoriteFood: 'text', 
+  description: 'text' 
+}, {
+  name: 'Pet text search index', 
+  weights: {
+    name: 10,          // Pet name is most important
+    species: 4,        // Species is very important  
+    favoriteFood: 2,   // Favorite food is moderately important
+    description: 1     // Description is least important
+  }
+});
+
 module.exports = mongoose.model('Pet', PetSchema);
