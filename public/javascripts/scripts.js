@@ -12,17 +12,23 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Form submitted');
         
         try {
-          // Get form data
-          const formData = new FormData(form);
-          const data = Object.fromEntries(formData);
-          console.log('Form data:', data);
+          // Use FormData to grab everything now that we have files mixed in with text
+          const pet = new FormData(form);
+          console.log('FormData created');
           
-          // Send AJAX request
-          axios.post('/pets', data)
+          // Assign the multipart/form-data headers so axios does a proper post
+          axios.post('/pets', pet, {
+            headers: {
+              'Content-Type': 'multipart/form-data;'
+            }
+          })
             .then(response => {
               console.log('Success:', response);
               showAlert('Pet created successfully!', 'success');
-              form.reset();
+              // Redirect to the pet's show page instead of just resetting form
+              setTimeout(() => {
+                window.location.replace(`/pets/${response.data.pet._id}`);
+              }, 1000);
             })
             .catch(error => {
               console.error('Error:', error);

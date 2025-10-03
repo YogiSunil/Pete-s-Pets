@@ -1,6 +1,9 @@
 
 # Created by https://www.gitignore.io/api/node,macos,bower
 
+# Local uploads folder (files are uploaded to S3)
+uploads/
+
 ### macOS ###
 *.DS_Store
 .AppleDouble

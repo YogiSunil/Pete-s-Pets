@@ -3,8 +3,12 @@ extends layout
 block content
   .row
     .col-sm-4
-      if pet.picUrlSq
+      if pet.avatarUrl && pet.avatarUrl !== 'test-url'
+        img(src=pet.avatarUrl + '-square.').img-fluid
+      else if pet.picUrlSq
         img(src=pet.picUrlSq).img-fluid
+      else
+        .alert.alert-info No image available
     .col-sm-8
       h1=pet.name
       p=pet.species

@@ -38,6 +38,7 @@ const PetSchema = new Schema({
         message: 'Square picture URL must be a valid image URL (jpg, jpeg, png, gif, webp)'
       }
     }
+  , avatarUrl       : { type: String }
   , favoriteFood    : { type: String }
   , description     : { type: String }
 },
