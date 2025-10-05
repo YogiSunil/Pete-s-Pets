@@ -89,7 +89,12 @@ module.exports = (app) => {
     pet.save(function (err) {
       if (err) {
         console.log('Pet save error:', err);
-        return res.status(400).send({ err: err });
+        // Check if request expects JSON (Accept header or explicit JSON request)
+        if (req.header('Accept') && req.header('Accept').includes('application/json')) {
+          return res.status(400).json({ err: err });
+        } else {
+          return res.redirect('/pets/new?error=true');
+        }
       }
       
       console.log('Pet saved successfully:', pet._id);
@@ -111,7 +116,12 @@ module.exports = (app) => {
             // Don't fail the request, just save without avatar
             pet.avatarUrl = null;
             pet.save();
-            return res.send({ pet: pet, uploadError: err.message });
+            // Check if request expects JSON (Accept header or explicit JSON request)
+            if (req.header('Accept') && req.header('Accept').includes('application/json')) {
+              return res.json({ pet: pet, uploadError: err.message });
+            } else {
+              return res.redirect(`/pets/${pet._id}`);
+            }
           }
 
           console.log('S3 upload successful:', versions);
@@ -127,11 +137,21 @@ module.exports = (app) => {
           });
 
           console.log('Sending response...');
-          res.send({ pet: pet });
+          // Check if request expects JSON (Accept header or explicit JSON request)
+          if (req.header('Accept') && req.header('Accept').includes('application/json')) {
+            return res.json({ pet: pet });
+          } else {
+            return res.redirect(`/pets/${pet._id}`);
+          }
         });
       } else {
         console.log('No file uploaded, sending response...');
-        res.send({ pet: pet });
+        // Check if request expects JSON (Accept header or explicit JSON request)
+        if (req.header('Accept') && req.header('Accept').includes('application/json')) {
+          return res.json({ pet: pet });
+        } else {
+          return res.redirect(`/pets/${pet._id}`);
+        }
       }
     })
   });
